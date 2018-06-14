@@ -17,7 +17,7 @@ class TodoList extends Component {
   }
 
   loadTodos = () => {
-    // Fetch data
+    // GET data
     fetch(API_URL).then(res => {
       if (!res.ok) {
         // If server returns err
@@ -45,12 +45,11 @@ class TodoList extends Component {
 
   // TODO
   addTodo = value => {
-    // Add todo to database
+    // POST todo to database
     fetch(API_URL, {
       method: 'post',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      })
+      headers: new Headers({'Content-Type': 'application/json'}),
+      body: JSON.stringify({name: value})
     }).then(res => {
       if (!res.ok) {
         // If server returns err
@@ -71,27 +70,34 @@ class TodoList extends Component {
           throw err;
         }
       }
-      // If no err, return data
+      // If no err, communicate with database
       return res.json();
-    }).then(todos => this.setState({todos}))
+    }).then(newTodo => this.setState(prevState => {
+      return {
+        todos: [
+          ...prevState.todos,
+          newTodo
+        ]
+      }
+    }))
   }
 
-    render() {
-      const todos = this
-        .state
-        .todos
-        .map(todo => (<TodoItem key={todo._id} {...todo}/>));
+  render() {
+    const todos = this
+      .state
+      .todos
+      .map(todo => (<TodoItem key={todo._id} {...todo}/>));
 
-      return (
-        <div>
-          <h1>Todo List</h1>
-          <TodoForm addTodo={this.addTodo}/>
-          <ul>
-            {todos}
-          </ul>
-        </div>
-      )
-    }
+    return (
+      <div>
+        <h1>Todo List</h1>
+        <TodoForm addTodo={this.addTodo}/>
+        <ul>
+          {todos}
+        </ul>
+      </div>
+    )
   }
+}
 
-  export default TodoList;
+export default TodoList;
